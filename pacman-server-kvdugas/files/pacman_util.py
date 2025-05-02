@@ -113,76 +113,6 @@ def bytes_to_int_little(byte_str):
     return sum(ord(b) << (8 * i) for i, b in enumerate(byte_str))
 
 @_verbose
-#def parse_msg(msg):
- #   header = parse_header(msg[:HEADER_LEN])
-  #  print("[DEBUG] Full message length:", len(msg))
-   # print("[DEBUG] Full message hex:", msg.encode('hex'))
-
-    #raw_words = [msg[i:i+WORD_LEN] for i in range(HEADER_LEN, len(msg), WORD_LEN)]
-
-    #words = []
-    #i = 0
-    #while i < len(raw_words):
-     #   first = raw_words[i]
-      #  print("[DEBUG] Total raw_words:", len(raw_words))
-       # print("[DEBUG] Word[{}] last byte: {}".format(i, repr(first[15:16])))
-        #if i + 1 < len(raw_words):
-         #   print("[DEBUG] Word[{}] last byte (next): {}".format(i+1, repr(raw_words[i+1][15:16])))
-        #else:
-         #   print("[DEBUG] No second word to compare.")
-
-        #if first[15:16] == b'D':  # type byte at last byte
-         #   if i + 1 < len(raw_words):
-          #      second = raw_words[i + 1]
-           #     print("[DEBUG] First word raw:", repr(first))
-            #    print("[DEBUG] First word last byte:", repr(first[15:16]))
-             #   print("[DEBUG] Second word raw:", repr(second))
-              #  print("[DEBUG] Second word last byte:", repr(second[15:16]))
-               # if second[15:16] == b'D':
-                #    try:
-                 #       # First 16 bytes
-                  #      readout, ts48_bytes, chan1, type1 = struct.unpack('<Q6sBc', first)
-                   #     ts48 = bytes_to_int_little(ts48_bytes)
-
-                    #    # Second 16 bytes
-                     #  # ts64, chan2, type2 = struct.unpack('<Q6xBc', second)
-                      #  type2, chan2, ts64_bytes, ts64_val = struct.unpack('<cB6sQ', second)
-                       # ts64 = ts64_val  # or use ts64_bytes if firmware sends time there
-
-
-                        #print("[DEBUG] ts64 value: {}".format(ts64))
-                        #print("[DEBUG] bit length: {}".format(ts64.bit_length()))
-                        #if chan1 != chan2:
-                         #   print("[WARN] Channel mismatch: {} vs {}".format(chan1, chan2))
-
-                        #print("[DEBUG] First word last byte:", first[15:16])
-                        #print("[DEBUG] Second word last byte:", second[15:16])
-                        #words.append(('DATA32', chan1, ts48, readout, ts64))
-                        #i += 2
-                        #continue
-                    #except Exception as e:
-                     #   print("[ERROR] Failed to combine two DATA words:", e)
-
-            ## Single DATA word fallback
-            #try:
-             #   readout, ts48_bytes, chan, type1 = struct.unpack('<Q6sBc', first)
-              #  ts48 = bytes_to_int_little(ts48_bytes)
-               # words.append(('DATA', chan, ts48, readout))
-            #except Exception as e:
-             #   print("[ERROR] Failed to parse single DATA word:", e)
-            #i += 1
-            #continue
-
-        # Not a DATA word try regular parsing
-        #try:
-         #   word = parse_word(first)
-        #except Exception as e:
-         #   print("[ERROR] parse_word failed:", e)
-          #  word = ('PARSE_ERROR', first)
-        #words.append(word)
-        #i += 1
-
-    #return header, words
 # Modified parse_msg with buffered DATA32 matching logic
 def parse_msg(msg):
     header = parse_header(msg[:HEADER_LEN])
@@ -229,7 +159,6 @@ def parse_msg(msg):
         else:
             print("[DEBUG] All DATA pairs matched.")
 
-    # Optionally flush unpaired pending data:
     for chan, (ts48, readout) in pending_data.items():
         words.append(('DATA', chan, ts48, readout))
 
@@ -249,7 +178,7 @@ def print_msg(msg):
         elif word[0] == 'DATA32': #added this
             word_string.append("'DATA32'")
             word_string.append("{:3}".format(word[1]))              # channel
-            word_string.append("{:<25}".format(word[4]))        #ts64
+            word_string.append("{:<25}".format(word[4]))            #ts64
             word_string.append("{:<25}".format(word[2]))            # ts48
             word_string.append("{}".format(hex(word[3])))           # readout
         elif word[0] in ('TRIG', 'SYNC'):
