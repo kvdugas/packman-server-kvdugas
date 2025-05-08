@@ -130,7 +130,7 @@ int main(int argc, char* argv[]){
     // copy data into message
     while(word_idx < words) {
 	word = get_word(msg_buffer, word_idx);
-        memcpy(word, prev->word, 16);
+        memcpy(word, prev->word, 32);
       
 	// reset word
 	if (dma_get(prev->desc, DESC_STAT) & (DESC_INTERR | DESC_SLVERR | DESC_DECERR)) {
